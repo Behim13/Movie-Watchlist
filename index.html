@@ -22,17 +22,28 @@
       <a href="watchlist.html">My Watchlist</a>
     </header>
 
+    <!-- Welcome screen -->
     <main>
       <form class="input-field">
         <i class="fa-solid fa-magnifying-glass"></i>
-        <input type="text" placeholder="Blade Runner" />
+        <input type="text" placeholder="Blade Runner" id="input-el" />
         <button type="submit">Search</button>
       </form>
-      <div class="main-logo hidden">
+
+      <div class="main-logo">
         <i class="fa-solid fa-film"></i>
         <h2>Start exploring</h2>
       </div>
-      <div class="movies">
+
+      <!-- No result element -->
+      <div class="main-logo hidden">
+        <h2>
+          Unable to find what you're looking for. Please try another search.
+        </h2>
+      </div>
+
+      <!-- Movies -->
+      <div class="movies hidden">
         <div class="movie">
           <img src="images/bladeRunner.png" alt="Blade runner" />
           <div class="movie-info">
