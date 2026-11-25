@@ -4,47 +4,92 @@ const noMovies = document.querySelector(".noMovies");
 const welcomeScreen = document.querySelector(".explore");
 const movies = document.querySelector(".movies");
 
-formEl.addEventListener("submit", (e) => {
+let watchlist = JSON.parse(localStorage.getItem("watchlist")) || [];
+
+formEl.addEventListener("submit", async (e) => {
   e.preventDefault();
-  getSearchResults();
+
+  // get results from search
+  const result = await getSearchResults();
+
+  // get full details of all searches
+  const detailedSearches = await Promise.all(
+    result.map((search) => getMovieDetails(search.imdbID)),
+  );
+
+  // render
+  renderMovieDetails(detailedSearches);
 });
 
-function getSearchResults() {
-  fetch(`http://www.omdbapi.com/?apikey=7970eeff&s=${inputEl.value}`)
-    .then((res) => res.json())
-    .then((data) => {
-      console.log(data);
-      welcomeScreen.classList.add("hidden");
+movies.addEventListener("click", async (e) => {
+  if (e.target.closest(".watchlist-btn")) {
+    // get movie info based on its id
+    const movie = await getMovieDetails(e.target.closest(".movie").dataset.id);
+    sendMovieToStorage(movie);
+  }
+});
 
-      if (data.Response === "false") {
-        noMovies.classList.remove("hidden");
-      } else {
-        let movie = `
-        <div class="movie">
-          <img src="${data.Poster}" alt="${data.Title}" />
+function sendMovieToStorage(movie) {
+  watchlist.push(movie);
+  if (!localStorage.getItem("watchlist")) {
+    localStorage.setItem("watchlist", JSON.stringify(watchlist));
+  }
+}
+
+// get lite info about search
+async function getSearchResults() {
+  const res = await fetch(
+    `http://www.omdbapi.com/?apikey=7970eeff&s=${inputEl.value}`,
+  );
+
+  const data = await res.json();
+  welcomeScreen.classList.add("hidden");
+
+  if (data.Response === "False") {
+    noMovies.classList.remove("hidden");
+  } else {
+    movies.classList.remove("hidden");
+  }
+  return data.Search;
+}
+
+// render movie with full details
+async function renderMovieDetails(Searches) {
+  let movie = ``;
+  movies.innerHTML = ``;
+  Searches.forEach((search) => {
+    movie = `
+        <div class="movie" data-id=${search.imdbID}>
+          <img src="${search.Poster}" alt="${search.Title}" />
           <div class="movie-info">
             <div class="title-rating">
-              <h3>${data.Title}</h3>
+              <h3>${search.Title}</h3>
               <i class="fa-solid fa-star"></i>
-              <p>${data.imdbRating}</p>
+              <p>${search.imdbRating}</p>
             </div>
             <div class="genre">
-              <p>${data.Runtime}</p>
-              <p>${data.Genre}</p>
-              <div>
+              <p>${search.Runtime}</p>
+              <p>${search.Genre}</p>
+              <div class="watchlist-btn">
                 <i class="fa-solid fa-circle-plus"></i>
                 <p>Watchlist</p>
               </div>
             </div>
             <div class="description">
               <p>
-                ${data.Plot}
+                ${search.Plot}
               </p>
             </div>
           </div>
       `;
-        movies.classList.remove("hidden");
-        movies.innerHTML = movie;
-      }
-    });
+    movies.innerHTML += movie;
+  });
+}
+
+// api to get details about every search
+async function getMovieDetails(id) {
+  const res = await fetch(`https://www.omdbapi.com/?apikey=7970eeff&i=${id}`);
+  const data = await res.json();
+
+  return data;
 }
