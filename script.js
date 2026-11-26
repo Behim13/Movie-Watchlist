@@ -47,7 +47,7 @@ function sendMovieToStorage(movie) {
 // get lite info about search
 async function getSearchResults() {
   const res = await fetch(
-    `http://www.omdbapi.com/?apikey=7970eeff&s=${inputEl.value}`,
+    `https://www.omdbapi.com/?apikey=7970eeff&s=${inputEl.value}`,
   );
 
   const data = await res.json();
