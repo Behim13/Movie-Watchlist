@@ -25,15 +25,23 @@ movies.addEventListener("click", async (e) => {
   if (e.target.closest(".watchlist-btn")) {
     // get movie info based on its id
     const movie = await getMovieDetails(e.target.closest(".movie").dataset.id);
-    sendMovieToStorage(movie);
+    if (sendMovieToStorage(movie))
+      e.target.closest(".watchlist-btn").innerHTML = "Added!";
   }
 });
 
 function sendMovieToStorage(movie) {
-  watchlist.push(movie);
-  if (!localStorage.getItem("watchlist")) {
+  // variable to check is the movie already in watchlist
+  const isAlreadyAdded = watchlist.some((savedMovie) => {
+    return savedMovie.imdbID === movie.imdbID;
+  });
+
+  if (!isAlreadyAdded) {
+    watchlist.push(movie);
     localStorage.setItem("watchlist", JSON.stringify(watchlist));
+    return 1;
   }
+  return 0;
 }
 
 // get lite info about search
