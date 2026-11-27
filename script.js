@@ -55,6 +55,7 @@ async function getSearchResults() {
 
   if (data.Response === "False") {
     noMovies.classList.remove("hidden");
+    movies.classList.add("hidden");
   } else {
     movies.classList.remove("hidden");
   }
